@@ -1,8 +1,7 @@
-import ReactDOM from "react-dom/client";
-import React from "react";
-import App from "./app";
+import ReactDOM from 'react-dom/client';
+import '@/assets/less/reset.less';
+import App from './app';
 
-import "@/assets/less/reset.less";
-
-const Root = ReactDOM.createRoot(document.querySelector("#root"));
+const el = document.querySelector('#root');
+const Root = ReactDOM.createRoot(el as Element);
 Root.render(<App></App>);

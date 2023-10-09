@@ -1,15 +1,19 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const rootPath = path.resolve(__dirname, "../");
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const rootPath = path.resolve(__dirname, '../');
+
+const isDev = process.env.RUNTIME_ENV === 'DEV';
 
 const config = {
   entry: {
-    app: path.resolve(__dirname, "../src/main.tsx"),
+    app: path.resolve(__dirname, '../src/main.tsx'),
   },
   resolve: {
-    extensions: [".js", ".json", ".jsx", ".tsx", ".ts", ".less", ".css"],
+    extensions: ['.js', '.json', '.jsx', '.tsx', '.ts', '.less', '.css'],
     alias: {
-      "@": path.resolve(rootPath, "src"),
+      '@': path.resolve(rootPath, 'src'),
     },
   },
   module: {
@@ -17,23 +21,45 @@ const config = {
       {
         test: /\.css|less$/,
         use: [
-          "css-loader",
+          MiniCssExtractPlugin.loader,
+          'css-loader',
           {
-            loader: "postcss-loader",
+            loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: [["autoprefixer"]],
+                plugins: [['autoprefixer']],
               },
             },
           },
-          "less-loader",
+          'less-loader',
         ],
       },
-      { test: /\.tsx?$/, use: "swc-loader" },
+      {
+        test: /\.tsx?$/,
+        use: [
+          {
+            loader: 'swc-loader',
+            options: {
+              jsc: {
+                transform: {
+                  react: {
+                    runtime: 'automatic',
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
       {
         test: /\.png|jpg|jpeg$/,
-        type: "asset/resource",
-        generator: { filename: "images/[hash][ext]" },
+        type: 'asset/resource',
+        generator: { filename: 'images/[hash][ext]' },
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024,
+          },
+        },
       },
     ],
   },
@@ -41,6 +67,14 @@ const config = {
     new HtmlWebpackPlugin({
       filename: `index.html`, //生成的文件名
       template: path.resolve(__dirname, `../public/index.html`), //源文件的绝对路径
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        RUNTIME_ENV: JSON.stringify(process.env.RUNTIME_ENV),
+      },
+    }),
+    new MiniCssExtractPlugin({
+      filename: isDev ? 'css/[name].css' : 'css/[name].[contenthash:8].css',
     }),
   ],
 };

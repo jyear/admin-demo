@@ -7,7 +7,9 @@
     "postinstall": "husky install",
     "commitlint": "commitlint --config commitlint.config.js -e -V",
     "fix": "eslint --fix --ext .ts,.tsx src",
-    "dev": "cross-env RUNTIME_ENV=DEV webpack-dev-server --config ./webpack/webpack.dev.js --color"
+    "dev": "cross-env RUNTIME_ENV=DEV webpack-dev-server --config ./webpack/webpack.dev.js --color",
+    "test": "cross-env RUNTIME_ENV=TEST webpack --config ./webpack/webpack.prod.js --color",
+    "prod": "cross-env RUNTIME_ENV=PROD webpack --config ./webpack/webpack.prod.js --color"
   },
   "author": "",
   "license": "ISC",
@@ -33,6 +35,7 @@
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/node": "^20.8.3",
     "@types/react": "^18.2.25",
+    "@types/react-dom": "^18.2.11",
     "@types/redux-actions": "^2.6.3",
     "@types/webpack-env": "^1.18.2",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
@@ -48,6 +51,7 @@
     "husky": "^8.0.3",
     "less": "^4.2.0",
     "less-loader": "^11.1.3",
+    "mini-css-extract-plugin": "^2.7.6",
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
     "swc-loader": "^0.2.3",
