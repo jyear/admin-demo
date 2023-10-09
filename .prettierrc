@@ -1,0 +1,32 @@
+{
+  "arrowParens": "avoid",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "editor.formatOnSave": false,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "editor.formatOnPaste": true,
+  "eslint.format.enable": true,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.validate": ["javascript", "ts", "tsx", "html"],
+  "eslint.options": {
+    "extensions": [".js", ".ts", ".tsx"]
+  },
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^@/(.*)", "^[./]"],
+  "mportOrderSortSpecifiers": true,
+  "importOrderParserPlugins": [
+    "typescript",
+    "jsx",
+    "tsx",
+    "ts",
+    "decorators-legacy"
+  ],
+  "eslint.run": "onSave",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": false,
+    "source.fixAll.eslint": true
+  }
+}

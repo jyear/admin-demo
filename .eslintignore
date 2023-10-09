@@ -1,0 +1,7 @@
+/dist
+/config
+/webpack
+/types
+/public
+/node_modules
+/commitlint.config.js
