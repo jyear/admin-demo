@@ -1,0 +1,31 @@
+.table-component {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  .table-component-header {
+    margin-bottom: 10px;
+  }
+  .table-component-section {
+    flex: 1;
+    min-height: 0;
+    background-color: #fff;
+    border-radius: 8px 8px 0 0;
+  }
+  .table-component-footer {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-end;
+    background-color: #fff;
+    border-radius: 0 0 8px 8px;
+    padding: 10px;
+  }
+  .ant-table-body {
+    // height: 100% !important;
+  }
+  .ant-table-body table {
+    // height: 100%;
+  }
+  //   .ant-table-body {
+  //     overflow-y: auto !important;
+  //   }
+}

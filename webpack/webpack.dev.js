@@ -6,6 +6,7 @@ const devConfig = {
   mode: 'development',
   devServer: {
     port: '8999',
+    historyApiFallback: true,
   },
   module: {
     rules: [],
