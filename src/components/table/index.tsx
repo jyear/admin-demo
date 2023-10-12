@@ -94,14 +94,13 @@ const CustomTable: React.FC<Props> = ({
       }
       x += col.width ? parseInt(`${col.width}`) : defaultColumnWidth;
       if (!col.render) {
+        col.render = val => <div>{val}</div>;
         if (col.overEllipise) {
           col.render = val => (
             <Tooltip title={val}>
-              <span>{val}</span>
+              <div className="table-singal-line">{val}</div>
             </Tooltip>
           );
-        } else {
-          col.render = val => <div>{val}</div>;
         }
       }
       icolumns.push(col);

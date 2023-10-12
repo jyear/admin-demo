@@ -1,10 +1,19 @@
-import { Form, Input, Select, Button, DatePicker } from 'antd';
+import { Input, Select, Button, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import React, { ReactElement, ReactNode, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { formatEmptyRecord } from '@/utils/util';
 import './index.less';
 
 const { RangePicker } = DatePicker;
+
+// filterMap 映射
+//   filterMap={
+//     a:'b'
+//   }
+//   表示key为filterParams的key b表示urlParams上的参数key
+// filterMap = ['startTime', 'endTime'];
+// 表示会把urlParams上的startTime endTime映射到filterParams的对应的数据上为[]呈现
 
 export interface FilterItem {
   key: string;
@@ -15,7 +24,8 @@ export interface FilterItem {
   option?: Record<string, string | number>[];
   render?: ReactElement | ReactNode | ((p: any) => any);
   decode?: (val: string) => any;
-  paramKey?: string[];
+  encode?: (val: any) => string | number;
+  filterMap?: Record<string, any> | string[];
   props?: Record<string | number, any>;
   dateFormat?: string;
 }
@@ -69,6 +79,36 @@ const Filter = React.forwardRef(
       });
       return res;
     };
+
+    const decodeData = (val, curItem) => {
+      if (!val) return val;
+      let curDecode = curItem?.decode;
+      if (
+        curItem &&
+        curItem.component &&
+        !curDecode &&
+        ['date', 'daterange'].includes(curItem.component)
+      ) {
+        curDecode = toVal => dayjs(toVal);
+      }
+      return curDecode ? curDecode(val) : val;
+    };
+
+    const encodeData = (val, curItem) => {
+      if (!val) return val;
+      let curEncode = curItem?.encode;
+
+      if (
+        curItem &&
+        curItem.component &&
+        !curEncode &&
+        ['date', 'daterange'].includes(curItem.component)
+      ) {
+        const formatStr = curItem.props.format || 'YYYY-MM-DD';
+        curEncode = toVal => dayjs(toVal).format(formatStr);
+      }
+      return curEncode ? curEncode(val) : val;
+    };
     // 初始化筛选项
     React.useEffect(() => {
       if (items.length <= 0) {
@@ -80,6 +120,7 @@ const Filter = React.forwardRef(
       const iItems = items.map((item: FilterItem): InnerFilterItem => {
         const innerItem: InnerFilterItem = item;
         defaultP[item.key] = item.defaultValue || '';
+        // 初始化解析类型为select的options的map映射问题
         if (item.component === 'select' && item.option) {
           const opts: InnerFilterItem['formatedOption'] = [];
           item.option.forEach(opt => {
@@ -94,11 +135,48 @@ const Filter = React.forwardRef(
           });
           innerItem.formatedOption = opts;
         }
-        if (innerItem.decode && urlParams[innerItem.key]) {
-          urlParams[innerItem.key] = innerItem.decode(urlParams[innerItem.key]);
+        // 初始化判断为daterange 检查filterMap是否存在
+        if (
+          item.component === 'daterange' &&
+          (!item.filterMap ||
+            !Array.isArray(item.filterMap) ||
+            item.filterMap.length != 2)
+        ) {
+          throw new Error('daterange的filterMap必须为长度为2的string[]');
         }
-        if (innerItem.paramKey?.length) {
-          // urlParams[innerItem.key] = innerItem.encode(urlParams[innerItem.key]);
+
+        //处理需要映射的数据结构
+        if (innerItem.filterMap && typeof innerItem.filterMap === 'object') {
+          //映射结构为数组时候
+          if (Array.isArray(innerItem.filterMap)) {
+            urlParams[innerItem.key] = [];
+            innerItem.filterMap.forEach((key: string) => {
+              const toData = decodeData(urlParams[key], innerItem);
+              console.log(toData);
+              urlParams[innerItem.key].push(toData);
+              delete urlParams[key];
+            });
+          }
+          // 处理映射为对象结构
+          if (!Array.isArray(innerItem.filterMap)) {
+            urlParams[innerItem.key] = {};
+            Object.keys(innerItem.filterMap).forEach((key: string) => {
+              if (innerItem.filterMap && innerItem.filterMap[key]) {
+                urlParams[innerItem.key][key] = decodeData(
+                  urlParams[innerItem.filterMap[key]],
+                  innerItem,
+                );
+                delete urlParams[innerItem.filterMap[key]];
+              } else {
+                throw new Error('filterMap 映射错误');
+              }
+            });
+          }
+        } else {
+          urlParams[innerItem.key] = decodeData(
+            urlParams[innerItem.key],
+            innerItem,
+          );
         }
 
         iItemsRecord[innerItem.key] = { ...innerItem };
@@ -121,29 +199,35 @@ const Filter = React.forwardRef(
     const formatFilter = needFormatParams => {
       const toParams = {};
       Object.keys(needFormatParams).forEach(key => {
-        if (!innerItemsRecord.current[key]) {
-          toParams[key] = needFormatParams[key];
-        } else {
-          if (
-            ['date'].includes(innerItemsRecord.current[key].component as string)
-          ) {
-            console.log(222, innerItemsRecord.current[key]);
-            toParams[key] = dayjs(toParams[key]).format(
-              innerItemsRecord.current[key]?.props?.format || 'YYYY-MM-DD',
-            );
-          } else if (
-            ['daterange'].includes(
-              innerItemsRecord.current[key].component as string,
-            )
-          ) {
-            console.log(needFormatParams[key]);
-          } else {
-            toParams[key] = needFormatParams[key];
+        const current = innerItemsRecord.current[key];
+        // 处理映射数据
+        if (current?.filterMap && typeof current.filterMap === 'object') {
+          if (Array.isArray(current.filterMap)) {
+            current.filterMap.forEach((key: string, idx: number) => {
+              toParams[key] = encodeData(
+                needFormatParams[current.key][idx],
+                current,
+              );
+            });
           }
+          if (!Array.isArray(current.filterMap)) {
+            Object.keys(current.filterMap).forEach((key: string) => {
+              if (current.filterMap && current.filterMap[key]) {
+                const urlKey = current.filterMap[key];
+                toParams[urlKey] = encodeData(
+                  needFormatParams[current.key][key],
+                  current,
+                );
+              }
+            });
+          }
+        } else {
+          toParams[key] = encodeData(needFormatParams[key], current);
         }
       });
+
       onFilter({
-        params: toParams,
+        params: formatEmptyRecord(toParams),
       });
     };
 

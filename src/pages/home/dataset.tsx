@@ -52,16 +52,18 @@ export const filterItems: FilterItem[] = [
     ],
   },
   {
-    key: 'name3',
+    key: 'daterange',
     label: '名称',
     component: 'daterange',
     defaultValue: [],
+    filterMap: ['startTime', 'endTime'],
   },
   {
     key: 'datetimerange',
     label: '名称',
     component: 'daterange',
     defaultValue: [],
+    filterMap: ['startTime1', 'endTime1'],
     props: {
       showTime: { format: 'HH:mm' },
       format: 'YYYY-MM-DD HH:mm',
