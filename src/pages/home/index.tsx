@@ -14,12 +14,13 @@ const Home = () => {
         for (let i = 0; i < len; i++) {
           list.push({
             name: Math.random(),
+            age: Math.random(),
             id: i,
           });
         }
         resolve({
           list,
-          total: 12,
+          total: list.length,
         });
       }, 2000);
     });

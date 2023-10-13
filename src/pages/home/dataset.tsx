@@ -7,13 +7,13 @@ export const filterItems: FilterItem[] = [
     key: 'name',
     label: '名称',
     component: 'input',
-    defaultValue: '123123',
+    defaultValue: '',
   },
   {
     key: 'date',
     label: '名称名称名称',
     component: 'date',
-    defaultValue: dayjs(),
+    defaultValue: '',
     decode: (val: string) => dayjs(val || ''),
     props: {
       format: 'YYYY-MM-DD',
@@ -23,7 +23,7 @@ export const filterItems: FilterItem[] = [
     key: 'datetime',
     label: '名称名称名称',
     component: 'date',
-    defaultValue: dayjs(),
+    defaultValue: '',
     decode: (val: string) => dayjs(val || ''),
     props: {
       showTime: { format: 'YYYY-MM-DD HH:mm:ss' },
@@ -34,7 +34,7 @@ export const filterItems: FilterItem[] = [
     key: 'name1',
     label: '名称名称名称',
     component: 'select',
-    defaultValue: 123,
+    defaultValue: null,
     decode: (val: string) => Number(val),
     mapValueLabel: {
       value: 'id',
@@ -72,18 +72,25 @@ export const filterItems: FilterItem[] = [
   {
     key: 'name4',
     label: '名称',
-    render: val => {
-      return <Input value={val}></Input>;
+    render: ({ val, onChange }) => {
+      const customOnchange = evt => {
+        onChange(evt.target.value);
+      };
+      return <Input value={val as string} onChange={customOnchange}></Input>;
     },
-    defaultValue: '123123',
+    defaultValue: '',
   },
   {
     key: 'name5',
-    label: '名称',
-    render: val => {
-      return <Input value={val}></Input>;
+    label: '名称99',
+    render: ({ val, onChange }) => {
+      const customOnchange = evt => {
+        onChange(evt.target.value);
+      };
+
+      return <Input value={val as string} onChange={customOnchange}></Input>;
     },
-    defaultValue: '123123',
+    defaultValue: '',
   },
 ];
 
@@ -102,10 +109,13 @@ export const columns: CustomColumnsType[] = [
     dataIndex: 'age',
     key: 'age',
     fixed: 'left',
+    formatter: () => {
+      return 123;
+    },
   },
   {
     title: 'Column 1',
-    dataIndex: 'address',
+    dataIndex: 'index',
     key: '1',
     width: 150,
   },

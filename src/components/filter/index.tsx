@@ -22,7 +22,10 @@ export interface FilterItem {
   defaultValue?: unknown;
   mapValueLabel?: Record<string, string>;
   option?: Record<string, string | number>[];
-  render?: ReactElement | ReactNode | ((p: any) => any);
+  render?: (p: {
+    val: unknown;
+    onChange: (val: unknown) => void;
+  }) => ReactElement;
   decode?: (val: string) => any;
   encode?: (val: any) => string | number;
   filterMap?: Record<string, any> | string[];
@@ -82,6 +85,7 @@ const Filter = React.forwardRef(
 
     const decodeData = (val, curItem) => {
       if (!val) return val;
+
       let curDecode = curItem?.decode;
       if (
         curItem &&
@@ -151,10 +155,11 @@ const Filter = React.forwardRef(
           if (Array.isArray(innerItem.filterMap)) {
             urlParams[innerItem.key] = [];
             innerItem.filterMap.forEach((key: string) => {
-              const toData = decodeData(urlParams[key], innerItem);
-              console.log(toData);
-              urlParams[innerItem.key].push(toData);
-              delete urlParams[key];
+              if (urlParams[key]) {
+                const toData = decodeData(urlParams[key], innerItem);
+                urlParams[innerItem.key].push(toData);
+                delete urlParams[key];
+              }
             });
           }
           // 处理映射为对象结构
@@ -173,10 +178,12 @@ const Filter = React.forwardRef(
             });
           }
         } else {
-          urlParams[innerItem.key] = decodeData(
-            urlParams[innerItem.key],
-            innerItem,
-          );
+          if (urlParams[innerItem.key]) {
+            urlParams[innerItem.key] = decodeData(
+              urlParams[innerItem.key],
+              innerItem,
+            );
+          }
         }
 
         iItemsRecord[innerItem.key] = { ...innerItem };
@@ -188,7 +195,7 @@ const Filter = React.forwardRef(
       innerItemsRecord.current = iItemsRecord;
       setDefaultParams(defaultP);
       const toParams = {
-        ...defaultP,
+        ...(Object.keys(initParams()).length > 0 ? {} : defaultP), // 只有第一次不带参数进入的时候才会使用defaultValue
         ...urlParams,
       };
       setParams(toParams);
@@ -202,7 +209,10 @@ const Filter = React.forwardRef(
         const current = innerItemsRecord.current[key];
         // 处理映射数据
         if (current?.filterMap && typeof current.filterMap === 'object') {
-          if (Array.isArray(current.filterMap)) {
+          if (
+            Array.isArray(current.filterMap) &&
+            needFormatParams[current.key]?.length
+          ) {
             current.filterMap.forEach((key: string, idx: number) => {
               toParams[key] = encodeData(
                 needFormatParams[current.key][idx],
@@ -228,6 +238,7 @@ const Filter = React.forwardRef(
 
       onFilter({
         params: formatEmptyRecord(toParams),
+        isFirst: true,
       });
     };
 
@@ -254,6 +265,10 @@ const Filter = React.forwardRef(
       <div className="filter-component">
         <div className="filter-form">
           {innerItems.map((item: InnerFilterItem) => {
+            let Item;
+            if (item.render) {
+              Item = item.render;
+            }
             return (
               <div key={item.key} className="filter-form-item">
                 <div className="filter-form-item-label">{item.label}:</div>
@@ -269,6 +284,7 @@ const Filter = React.forwardRef(
                     <Select
                       style={{ width: '100%' }}
                       value={params[item.key]}
+                      allowClear
                       {...(item.props || {})}
                       onChange={evt =>
                         changeParams({ target: { value: evt } }, item.key)
@@ -296,6 +312,12 @@ const Filter = React.forwardRef(
                       value={params[item.key]}
                     ></RangePicker>
                   )}
+                  {!item.component &&
+                    React.cloneElement(<Item></Item>, {
+                      val: params[item.key],
+                      onChange: evt =>
+                        changeParams({ target: { value: evt } }, item.key),
+                    })}
                 </div>
               </div>
             );
