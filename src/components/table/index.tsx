@@ -112,7 +112,12 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
           x += col.width ? parseInt(`${col.width}`) : defaultColumnWidth;
         }
       });
-      localStorage.setItem(innerTableKey.current, innerUnShow.join(','));
+      if (innerTableKey.current) {
+        localStorage.setItem(
+          `${innerTableKey.current}_unShow`,
+          innerUnShow.join(','),
+        );
+      }
       setScrollInfo(state => ({ ...state, x }));
       return showColumns;
     }, [innerColumns, innerUnShow]);
@@ -191,7 +196,9 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       if (defaultUnShowColumns !== 'none' && showFilterColumns) {
         toUnShow = [...defaultUnShowColumns];
       }
-      const localUnShow = localStorage.getItem(innerTableKey.current);
+      const localUnShow = localStorage.getItem(
+        `${innerTableKey.current}_unShow`,
+      );
       if (localUnShow) {
         toUnShow = localUnShow.split(',');
       }
