@@ -10,6 +10,7 @@
     min-height: 0;
     background-color: #fff;
     border-radius: 8px 8px 0 0;
+    position: relative;
   }
   .table-component-footer {
     display: flex;
@@ -24,4 +25,30 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+.table-component-section-filter {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 55px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.table-filter-item {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  min-height: 0;
+  cursor: pointer;
+}
+.table-filter-box {
+  width: 150px;
+}
+.table-filter-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

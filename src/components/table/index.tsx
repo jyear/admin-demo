@@ -1,4 +1,5 @@
-import { Table, Pagination, Tooltip } from 'antd';
+import { SettingFilled } from '@ant-design/icons';
+import { Table, Pagination, Tooltip, Popover, Button, Checkbox } from 'antd';
 import type { ColumnType } from 'antd/es/table';
 import React, { useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -36,6 +37,9 @@ interface Props {
   rowKey?: string;
   mapToUrl?: boolean;
   limit?: number;
+  defaultUnShowColumns?: string[] | 'none';
+  showFilterColumns?: boolean;
+  tableKey?: string;
 }
 
 const CustomTable = React.forwardRef<CustomTableRef, Props>(
@@ -48,13 +52,17 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       rowKey = 'id',
       mapToUrl = true,
       limit = 20,
+      defaultUnShowColumns = 'none',
+      showFilterColumns = true,
+      tableKey = `table_${new Date().getTime()}_${parseInt(
+        `${Math.random() * 100000}`,
+        10,
+      )}`,
     },
     ref,
   ) => {
     const [searchParams, setSearchParams] = useSearchParams();
-
     const defaultColumnWidth = 100;
-
     const pageInfo = React.useRef<Record<string, number>>({
       page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
       limit: searchParams.get('limit')
@@ -74,7 +82,10 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     const tableHeaderRef = React.useRef<HTMLDivElement | null>(null);
     const tableFooterRef = React.useRef<HTMLDivElement | null>(null);
     const filterComponent = React.useRef<FilterComponent | null>(null);
-
+    // 展示列
+    const [innerUnShow, setInnerUnShow] = React.useState<(string | number)[]>(
+      [],
+    );
     const [scrollInfo, setScrollInfo] = React.useState<any>({
       y: 'auto',
       x: '100%',
@@ -93,7 +104,21 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       )[0] as HTMLDivElement;
       if (tableContainer) tableContainer.style.height = `${toH}px`;
     };
+    // 最终需要展示的列
+    const selectedColumns = React.useMemo(() => {
+      const showColumns: CustomColumnsType[] = [];
+      let x: number = 0;
+      innerColumns.forEach((col: CustomColumnsType) => {
+        if (!innerUnShow.includes(col.key as string)) {
+          showColumns.push(col);
+          x += col.width ? parseInt(`${col.width}`) : defaultColumnWidth;
+        }
+      });
+      setScrollInfo(state => ({ ...state, x }));
+      return showColumns;
+    }, [innerColumns, innerUnShow]);
 
+    // ref 操作
     useImperativeHandle(ref, (): CustomTableRef => {
       return {
         refresh: doGetData,
@@ -119,14 +144,13 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     // 初始化columns
     React.useEffect(() => {
       const icolumns: CustomColumnsType[] = [];
-      let x: number = 0;
       innerColumnsRef.current = {};
+
       columns.forEach(col => {
         innerColumnsRef.current[col.dataIndex as string | number] = { ...col };
         if (!col.width) {
           col.minWidth = 100;
         }
-        x += col.width ? parseInt(`${col.width}`) : defaultColumnWidth;
         // 用户没有自定义render的时候  内部默认
         if (!col.render) {
           col.render = (text, record, index) => {
@@ -160,7 +184,12 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
 
         icolumns.push(col);
       });
-      setScrollInfo(state => ({ ...state, x }));
+
+      let toUnShow: (string | number)[] = [];
+      if (defaultUnShowColumns !== 'none' && showFilterColumns) {
+        toUnShow = [...defaultUnShowColumns];
+      }
+      setInnerUnShow(toUnShow);
       setInnerColumns(icolumns);
     }, [columns]);
 
@@ -192,11 +221,21 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       doGetData();
     };
 
-    const sizeChange = (cur, val) => {
-      console.log(val);
+    const sizeChange = (_, val) => {
       pageInfo.current.limit = val;
       pageInfo.current.page = 1;
       doGetData();
+    };
+
+    const showColumnChange = (key: string) => {
+      if (!innerUnShow.includes(key)) {
+        setInnerUnShow([...innerUnShow, key]);
+      } else {
+        const idx = innerUnShow.indexOf(key);
+        const arr = [...innerUnShow];
+        arr.splice(idx, 1);
+        setInnerUnShow([...arr]);
+      }
     };
 
     return (
@@ -214,11 +253,42 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
           <Table
             sticky
             pagination={false}
-            columns={innerColumns}
+            columns={selectedColumns}
             dataSource={data}
             rowKey={rowKey}
             scroll={scrollInfo}
           ></Table>
+          {showFilterColumns && (
+            <div className="table-component-section-filter">
+              <Popover
+                placement="bottomLeft"
+                content={
+                  <div className="table-filter-box">
+                    {innerColumns.map((col: CustomColumnsType, idx: number) => {
+                      return (
+                        <div
+                          key={`${col.key}_${idx}`}
+                          className="table-filter-item"
+                        >
+                          <Checkbox
+                            checked={!innerUnShow.includes(col.key as string)}
+                            onChange={() => showColumnChange(col.key as string)}
+                          >
+                            <div className="table-filter-item-name">
+                              {col.title as string}
+                            </div>
+                          </Checkbox>
+                        </div>
+                      );
+                    })}
+                  </div>
+                }
+                trigger="click"
+              >
+                <SettingFilled></SettingFilled>
+              </Popover>
+            </div>
+          )}
         </div>
         <div className="table-component-footer" ref={tableFooterRef}>
           <Pagination
