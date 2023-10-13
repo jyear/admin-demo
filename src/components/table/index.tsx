@@ -199,7 +199,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       const localUnShow = localStorage.getItem(
         `${innerTableKey.current}_unShow`,
       );
-      if (localUnShow) {
+      if (localUnShow && localUnShow.length > 0) {
         toUnShow = localUnShow.split(',');
       }
       setInnerUnShow(toUnShow);
