@@ -54,10 +54,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       limit = 20,
       defaultUnShowColumns = 'none',
       showFilterColumns = true,
-      tableKey = `table_${new Date().getTime()}_${parseInt(
-        `${Math.random() * 100000}`,
-        10,
-      )}`,
+      tableKey = '',
     },
     ref,
   ) => {
@@ -82,6 +79,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     const tableHeaderRef = React.useRef<HTMLDivElement | null>(null);
     const tableFooterRef = React.useRef<HTMLDivElement | null>(null);
     const filterComponent = React.useRef<FilterComponent | null>(null);
+    const innerTableKey = React.useRef<string>('');
     // 展示列
     const [innerUnShow, setInnerUnShow] = React.useState<(string | number)[]>(
       [],
@@ -114,6 +112,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
           x += col.width ? parseInt(`${col.width}`) : defaultColumnWidth;
         }
       });
+      localStorage.setItem(innerTableKey.current, innerUnShow.join(','));
       setScrollInfo(state => ({ ...state, x }));
       return showColumns;
     }, [innerColumns, innerUnShow]);
@@ -127,6 +126,9 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
 
     // 初始化样式变更
     React.useEffect(() => {
+      if (!tableKey) {
+        innerTableKey.current = `table_${window.location.pathname}`;
+      }
       if (!autoY) {
         window.addEventListener('resize', doResize);
         setTimeout(() => {
@@ -188,6 +190,10 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       let toUnShow: (string | number)[] = [];
       if (defaultUnShowColumns !== 'none' && showFilterColumns) {
         toUnShow = [...defaultUnShowColumns];
+      }
+      const localUnShow = localStorage.getItem(innerTableKey.current);
+      if (localUnShow) {
+        toUnShow = localUnShow.split(',');
       }
       setInnerUnShow(toUnShow);
       setInnerColumns(icolumns);
