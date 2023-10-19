@@ -1,5 +1,33 @@
 .main-side {
-  width: 120px;
+  width: 240px;
   background-color: #fff;
   height: 100%;
+  display: flex;
+  flex-flow: column;
+  align-items: stretch;
+  transition: width 0.2s linear;
+  &.close {
+    width: 60px;
+  }
+  .ant-menu-root {
+    border-inline-end: none !important;
+  }
+  .main-side-menu {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  .main-side-ctrl-coll {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .main-side-trigger {
+    font-size: 20px;
+    color: rgba(0, 0, 0, 0.88);
+  }
 }

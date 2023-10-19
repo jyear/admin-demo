@@ -80,6 +80,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     const tableFooterRef = React.useRef<HTMLDivElement | null>(null);
     const filterComponent = React.useRef<FilterComponent | null>(null);
     const innerTableKey = React.useRef<string>('');
+    const [loading, setLoading] = React.useState(false);
     // 展示列
     const [innerUnShow, setInnerUnShow] = React.useState<(string | number)[]>(
       [],
@@ -192,6 +193,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
         icolumns.push(col);
       });
 
+      // 不展示列处理
       let toUnShow: (string | number)[] = [];
       if (defaultUnShowColumns !== 'none' && showFilterColumns) {
         toUnShow = [...defaultUnShowColumns];
@@ -215,9 +217,14 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       if (mapToUrl) {
         setSearchParams(requestParams as any);
       }
-      const res = await api(requestParams);
-      setData(res.list);
-      setTotal(res.total);
+      try {
+        setLoading(true);
+        const res = await api(requestParams);
+        setData(res.list);
+        setTotal(res.total);
+      } finally {
+        setLoading(false);
+      }
     };
 
     const onFilter = filterRes => {
@@ -259,12 +266,14 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
               items={filterItems}
               onFilter={onFilter}
               ref={filterComponent}
+              paramFromUrl={mapToUrl}
             ></Filter>
           </div>
         )}
         <div className="table-component-section">
           <Table
             sticky
+            loading={loading}
             pagination={false}
             columns={selectedColumns}
             dataSource={data}

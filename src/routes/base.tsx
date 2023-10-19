@@ -1,3 +1,4 @@
+import Excep from '@/pages/excep';
 import Login from '@/pages/login';
 
 const config: Array<RouteItem> = [
@@ -6,6 +7,16 @@ const config: Array<RouteItem> = [
     path: '/login',
     meta: {
       title: '登录',
+    },
+    useLayer: false,
+    key: 'Login',
+  },
+  {
+    element: <Excep></Excep>,
+    path: '*',
+    key: 'Excep',
+    meta: {
+      title: '异常',
     },
     useLayer: false,
   },

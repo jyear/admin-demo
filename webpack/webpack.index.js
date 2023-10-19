@@ -21,17 +21,29 @@ const config = {
       {
         test: /\.css|less$/,
         use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
+          isDev
+            ? 'style-loader'
+            : {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                  esModule: false,
+                },
+              },
+          {
+            loader: 'css-loader',
+            options: {},
+          },
           {
             loader: 'postcss-loader',
+          },
+          {
+            loader: 'less-loader',
             options: {
-              postcssOptions: {
-                plugins: [['autoprefixer']],
+              lessOptions: {
+                javascriptEnabled: true,
               },
             },
           },
-          'less-loader',
         ],
       },
       {
@@ -40,8 +52,27 @@ const config = {
           {
             loader: 'swc-loader',
             options: {
+              env: {
+                targets: {
+                  chrome: '79',
+                },
+              },
               jsc: {
+                parser: {
+                  syntax: 'typescript',
+                  dynamicImport: true,
+                  tsx: true,
+                  privateMethod: false,
+                  functionBind: false,
+                  exportDefaultFrom: false,
+                  exportNamespaceFrom: false,
+                  decorators: true,
+                  decoratorsBeforeExport: false,
+                  topLevelAwait: true,
+                  importMeta: false,
+                },
                 transform: {
+                  legacyDecorator: true,
                   react: {
                     runtime: 'automatic',
                   },
@@ -72,9 +103,6 @@ const config = {
       'process.env': {
         RUNTIME_ENV: JSON.stringify(process.env.RUNTIME_ENV),
       },
-    }),
-    new MiniCssExtractPlugin({
-      filename: isDev ? 'css/[name].css' : 'css/[name].[contenthash:8].css',
     }),
   ],
 };

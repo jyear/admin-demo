@@ -3,9 +3,11 @@
 
 interface RouteItem {
   useLayer: boolean;
-  element: React.ReactElement;
+  key: string;
+  element: React.ReactElement | Function;
   path: string;
   meta?: {
     title?: string;
   };
+  withAuth?: boolean;
 }

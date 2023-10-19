@@ -48,12 +48,16 @@ export interface FilterComponent {
 
 interface Props {
   items: FilterItem[];
+  paramFromUrl?: boolean;
   onFilter?: (p: Record<string, unknown>) => void;
 }
 
 // eslint-disable-next-line react/display-name
 const Filter = React.forwardRef(
-  ({ items = [], onFilter = () => {}, ...props }: Props, ref) => {
+  (
+    { items = [], onFilter = () => {}, paramFromUrl = true, ...props }: Props,
+    ref,
+  ) => {
     const [searchParams] = useSearchParams();
     const [innerItems, setInnerItems] = React.useState<InnerFilterItem[]>([]);
     // 对象存储方便查找
@@ -108,7 +112,7 @@ const Filter = React.forwardRef(
         !curEncode &&
         ['date', 'daterange'].includes(curItem.component)
       ) {
-        const formatStr = curItem.props.format || 'YYYY-MM-DD';
+        const formatStr = curItem.props?.format || 'YYYY-MM-DD';
         curEncode = toVal => dayjs(toVal).format(formatStr);
       }
       return curEncode ? curEncode(val) : val;
@@ -120,7 +124,7 @@ const Filter = React.forwardRef(
       }
       const defaultP = {};
       const iItemsRecord = {};
-      const urlParams = initParams();
+      const urlParams = paramFromUrl ? {} : initParams();
       const iItems = items.map((item: FilterItem): InnerFilterItem => {
         const innerItem: InnerFilterItem = item;
         defaultP[item.key] = item.defaultValue || '';
@@ -149,40 +153,42 @@ const Filter = React.forwardRef(
           throw new Error('daterange的filterMap必须为长度为2的string[]');
         }
 
-        //处理需要映射的数据结构
-        if (innerItem.filterMap && typeof innerItem.filterMap === 'object') {
-          //映射结构为数组时候
-          if (Array.isArray(innerItem.filterMap)) {
-            urlParams[innerItem.key] = [];
-            innerItem.filterMap.forEach((key: string) => {
-              if (urlParams[key]) {
-                const toData = decodeData(urlParams[key], innerItem);
-                urlParams[innerItem.key].push(toData);
-                delete urlParams[key];
-              }
-            });
-          }
-          // 处理映射为对象结构
-          if (!Array.isArray(innerItem.filterMap)) {
-            urlParams[innerItem.key] = {};
-            Object.keys(innerItem.filterMap).forEach((key: string) => {
-              if (innerItem.filterMap && innerItem.filterMap[key]) {
-                urlParams[innerItem.key][key] = decodeData(
-                  urlParams[innerItem.filterMap[key]],
-                  innerItem,
-                );
-                delete urlParams[innerItem.filterMap[key]];
-              } else {
-                throw new Error('filterMap 映射错误');
-              }
-            });
-          }
-        } else {
-          if (urlParams[innerItem.key]) {
-            urlParams[innerItem.key] = decodeData(
-              urlParams[innerItem.key],
-              innerItem,
-            );
+        if (paramFromUrl) {
+          //处理需要映射的数据结构
+          if (innerItem.filterMap && typeof innerItem.filterMap === 'object') {
+            //映射结构为数组时候
+            if (Array.isArray(innerItem.filterMap)) {
+              urlParams[innerItem.key] = [];
+              innerItem.filterMap.forEach((key: string) => {
+                if (urlParams[key]) {
+                  const toData = decodeData(urlParams[key], innerItem);
+                  urlParams[innerItem.key].push(toData);
+                  delete urlParams[key];
+                }
+              });
+            }
+            // 处理映射为对象结构
+            if (!Array.isArray(innerItem.filterMap)) {
+              urlParams[innerItem.key] = {};
+              Object.keys(innerItem.filterMap).forEach((key: string) => {
+                if (innerItem.filterMap && innerItem.filterMap[key]) {
+                  urlParams[innerItem.key][key] = decodeData(
+                    urlParams[innerItem.filterMap[key]],
+                    innerItem,
+                  );
+                  delete urlParams[innerItem.filterMap[key]];
+                } else {
+                  throw new Error('filterMap 映射错误');
+                }
+              });
+            }
+          } else {
+            if (urlParams[innerItem.key]) {
+              urlParams[innerItem.key] = decodeData(
+                urlParams[innerItem.key],
+                innerItem,
+              );
+            }
           }
         }
 

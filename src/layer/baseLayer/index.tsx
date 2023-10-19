@@ -20,5 +20,6 @@ const BaseLayer: React.FC<Props> = ({ ...props }) => {
     </div>
   );
 };
+BaseLayer.displayName = 'BaseLayer';
 
 export default BaseLayer;

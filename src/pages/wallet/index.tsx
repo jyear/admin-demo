@@ -2,12 +2,12 @@
 import React from 'react';
 import Table, { FilterItem } from '@/components/table';
 import { filterItems, columns } from './dataset';
-import './index.less';
 
 const Home = () => {
   const [FilterItems] = React.useState<FilterItem[]>(filterItems);
 
   const requestData = params => {
+    console.log(111, params);
     return new Promise(resolve => {
       setTimeout(() => {
         const len = Math.random() * 100;
@@ -28,7 +28,7 @@ const Home = () => {
   };
 
   return (
-    <div style={{ height: '100%' }} className="test">
+    <div style={{ height: '100%' }}>
       <Table
         api={requestData}
         filterItems={FilterItems}

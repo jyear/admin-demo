@@ -6,36 +6,27 @@ import { Provider } from 'react-redux';
 import '@/assets/less/reset.less';
 import Routes from '@/routes';
 import store from '@/store';
-
-// const debounce = (callback: any, delay: number) => {
-//   let tid: any;
-//   return function (...arg) {
-//     const ctx = self;
-//     tid && clearTimeout(tid);
-//     tid = setTimeout(() => {
-//       callback.apply(ctx, arg);
-//     }, delay);
-//   };
-// };
-
-// export default () => {
-//   const _ = (window as any).ResizeObserver;
-//   (window as any).ResizeObserver = class ResizeObserver extends _ {
-//     constructor(callback: any) {
-//       callback = debounce(callback, 20);
-//       super(callback);
-//     }
-//   };
-// };
-
-// import App from './app';
+import App from './app';
 
 const el = document.querySelector('#root');
 const Root = ReactDOM.createRoot(el as Element);
 Root.render(
-  <ConfigProvider locale={locale}>
+  <ConfigProvider
+    locale={locale}
+    theme={{
+      token: {
+        borderRadius: 4,
+        colorPrimary: '#00b96b',
+      },
+      components: {
+        Menu: {
+          collapsedWidth: 60,
+        },
+      },
+    }}
+  >
     <Provider store={store}>
-      <Routes></Routes>
+      <App></App>
     </Provider>
   </ConfigProvider>,
 );
