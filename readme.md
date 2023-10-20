@@ -1,4 +1,4 @@
-# ReactDemo
+# admin-demo
 
 webpack+react+redux+react-router-dom+ts
 
