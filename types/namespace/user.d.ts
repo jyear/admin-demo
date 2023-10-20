@@ -10,7 +10,7 @@ declare namespace User {
   }
 
   interface Action {
-    userLogin: ReduxActions.ActionFunction1<any, ReduxActions.Action<UserInfo>>;
+    userLogin: ReduxActions.ActionFunction0<ReduxActions.Action<UserInfo>>;
   }
 
   interface UserInfo {

@@ -1,10 +1,14 @@
 import { UserOutlined, GoogleOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
 import Apis from '@/apis';
+import useCustomHooks from '@/hooks';
 import './index.less';
 
 const Login = () => {
+  const { userLogin } = useCustomHooks();
+
   const getData = async () => {
+    userLogin();
     const res = await Apis.User.getUserInfo();
     console.log(res);
   };
