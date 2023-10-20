@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React, { useContext, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import SkeletonList from '@/components/skeletionList';
 import GlobalContext from '@/context/global';
 import BaseLayer from '@/layer/baseLayer';
 import base from './base';
@@ -18,7 +19,11 @@ const genMenus = (menus, routKeyMap, permission): MenuItem[] => {
   menus.forEach((menu: MenuItem) => {
     if (!menu.key) return;
     const curRout = routKeyMap[menu.key.toLocaleLowerCase()];
-    if (curRout && curRout.withAuth && !permission.includes(menu.key)) {
+    if (
+      curRout &&
+      curRout.withAuth &&
+      (!permission || !permission.includes(menu.key))
+    ) {
       return;
     }
     if (menu.children) {
@@ -54,7 +59,7 @@ const CustomRoutes = () => {
       if (typeof el === 'function') {
         const LazyCom = React.lazy(el);
         rout.element = (
-          <Suspense fallback={'loading'}>
+          <Suspense fallback={<SkeletonList></SkeletonList>}>
             <LazyCom></LazyCom>
           </Suspense>
         );
@@ -66,10 +71,13 @@ const CustomRoutes = () => {
         React.cloneElement(rout.element, { key: rout.key })
       );
 
+      console.log(globalContext.permission);
+
       if (
         rout.withAuth &&
         rout.key &&
-        !globalContext.permission.includes(rout.key)
+        (!globalContext.permission ||
+          !globalContext.permission.includes(rout.key))
       ) {
         return;
       }

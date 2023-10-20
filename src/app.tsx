@@ -8,7 +8,7 @@ const App = () => {
     routPathMap: {},
     routKeyMap: {},
     setContext: function () {} as any,
-    permission: [],
+    permission: null,
   });
 
   React.useEffect(() => {

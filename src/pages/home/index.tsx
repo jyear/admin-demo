@@ -32,7 +32,16 @@ const Home = () => {
       <Table
         api={requestData}
         filterItems={FilterItems}
-        columns={columns}
+        columns={[
+          ...columns,
+          {
+            title: 'Action',
+            key: 'operation',
+            fixed: 'right',
+            width: 100,
+            render: () => <a>action</a>,
+          },
+        ]}
         mapToUrl={false}
       ></Table>
     </div>

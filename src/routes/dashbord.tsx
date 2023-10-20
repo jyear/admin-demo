@@ -1,11 +1,8 @@
 import { DashboardOutlined } from '@ant-design/icons';
 
-// import Home from '@/pages/home';
-
 const config: Array<RouteItem> = [
   {
     element: () => import('@/pages/home'),
-    // element: <Home></Home>,
     path: '/',
     meta: {
       title: 'Dashbord',

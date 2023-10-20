@@ -5,7 +5,7 @@ interface GlobalContext {
   routPathMap: Record<string, RouteItem>;
   routKeyMap: Record<string, RouteItem>;
   menus: MenuItem[];
-  permission: string[];
+  permission: string[] | null;
   setContext: (
     fn: (p: GlobalContext) => GlobalContext,
   ) => GlobalContext | ((context: GlobalContext) => void);
