@@ -1,6 +1,3 @@
-// import { IndexRouteObject } from 'react-router-dom';
-///// <reference types="react-router-dom" />
-
 interface RouteItem {
   useLayer: boolean;
   key: string;

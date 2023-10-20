@@ -17,4 +17,4 @@ Object.keys(files).forEach(name => {
   });
 });
 
-export default actObjs;
+export default actObjs as Store.Action;

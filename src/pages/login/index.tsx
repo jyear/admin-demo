@@ -1,8 +1,14 @@
 import { UserOutlined, GoogleOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
+import Apis from '@/apis';
 import './index.less';
 
 const Login = () => {
+  const getData = async () => {
+    const res = await Apis.User.getUserInfo();
+    console.log(res);
+  };
+
   return (
     <div className="login-page">
       <div className="login-container">
