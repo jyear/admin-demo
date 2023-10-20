@@ -1,14 +1,16 @@
 import config from '@/config';
 import requset from '@/utils/request';
 import Common from './common';
+import User from './user';
 
 const files = {
   Common,
+  User,
 };
 const apiObj = {};
 
 Object.keys(files).forEach((key: string) => {
-  const apis: any = files[key];
+  const apis = files[key];
   if (!apiObj[key]) {
     apiObj[key] = {};
   }
