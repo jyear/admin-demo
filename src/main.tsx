@@ -4,7 +4,6 @@ import 'dayjs/locale/zh-cn';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import '@/assets/less/reset.less';
-import Routes from '@/routes';
 import store from '@/store';
 import App from './app';
 
