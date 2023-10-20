@@ -1,6 +1,7 @@
 const webpackMerge = require('webpack-merge');
 const fs = require('fs');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { EsbuildPlugin } = require('esbuild-loader');
 const baseConfig = require('./webpack.index.js');
 const path = require('path');
 
@@ -47,8 +48,9 @@ const prodConfig = {
   optimization: {
     minimize: true,
     minimizer: [
-      new CssMinimizerPlugin({
-        test: /\.css$/i,
+      new EsbuildPlugin({
+        target: 'es2015',
+        css: true,
       }),
     ],
     splitChunks: {

@@ -8,8 +8,8 @@
     "commitlint": "commitlint --config commitlint.config.js -e -V",
     "fix": "eslint --fix --ext .ts,.tsx src",
     "dev": "cross-env RUNTIME_ENV=DEV webpack-dev-server --config ./webpack/webpack.dev.js --color",
-    "build:test": "cross-env RUNTIME_ENV=TEST webpack --config ./webpack/webpack.prod.js --color --progress",
-    "build:prod": "cross-env RUNTIME_ENV=PROD webpack --config ./webpack/webpack.prod.js --color"
+    "build:test": "cross-env RUNTIME_ENV=TEST webpack build --config ./webpack/webpack.prod.js --color --progress=profile",
+    "build:prod": "cross-env RUNTIME_ENV=PROD webpack build --config ./webpack/webpack.prod.js --color"
   },
   "author": "",
   "license": "ISC",
@@ -46,7 +46,7 @@
     "autoprefixer": "^10.4.16",
     "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
-    "css-minimizer-webpack-plugin": "^5.0.1",
+    "esbuild-loader": "^4.0.2",
     "eslint": "^8.51.0",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-react": "^7.33.2",
