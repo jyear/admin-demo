@@ -2,7 +2,8 @@ import { Input, Select, Button, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import React, { ReactElement, ReactNode, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { formatEmptyRecord } from '@/utils/util';
+import { componentMap } from '@/utils/antd';
+import { formatEmptyRecord, throttle } from '@/utils/util';
 import './index.less';
 
 const { RangePicker } = DatePicker;
@@ -18,7 +19,7 @@ const { RangePicker } = DatePicker;
 export interface FilterItem {
   key: string;
   label: string;
-  component?: 'input' | 'select' | 'date' | 'daterange';
+  component?: keyof FullInputComponentMap;
   defaultValue?: unknown;
   mapValueLabel?: Record<string, string>;
   option?: Record<string, string | number>[];
@@ -65,6 +66,7 @@ const Filter = React.forwardRef(
     const [defaultParams, setDefaultParams] = React.useState<
       Record<string, any>
     >({});
+    const filterRenderType = ['select', 'date', 'daterange'];
 
     const [params, setParams] = React.useState<Record<string, any>>({});
 
@@ -129,7 +131,7 @@ const Filter = React.forwardRef(
         const innerItem: InnerFilterItem = item;
         defaultP[item.key] = item.defaultValue || '';
         // 初始化解析类型为select的options的map映射问题
-        if (item.component === 'select' && item.option) {
+        if (item.component && item.component === 'select' && item.option) {
           const opts: InnerFilterItem['formatedOption'] = [];
           item.option.forEach(opt => {
             const valueKey = item.mapValueLabel?.value || 'value';
@@ -257,67 +259,77 @@ const Filter = React.forwardRef(
       });
     };
 
-    const resetClick = () => {
+    const resetClick = throttle(() => {
       setParams({
         ...defaultParams,
       });
       formatFilter(defaultParams);
-    };
-    const filterClick = () => {
+    });
+    const filterClick = throttle(() => {
       formatFilter(params);
-    };
+    });
 
     return (
       <div className="filter-component">
         <div className="filter-form">
           {innerItems.map((item: InnerFilterItem) => {
-            let Item;
+            let Item, Comp;
             if (item.render) {
               Item = item.render;
+            }
+            if (item.component) {
+              Comp = componentMap[item.component];
             }
             return (
               <div key={item.key} className="filter-form-item">
                 <div className="filter-form-item-label">{item.label}:</div>
                 <div className="filter-form-item-value">
-                  {item.component === 'input' && (
-                    <Input
-                      value={params[item.key]}
-                      onChange={evt => changeParams(evt, item.key)}
-                      {...(item.props || {})}
-                    ></Input>
-                  )}
-                  {item.component === 'select' && (
-                    <Select
-                      style={{ width: '100%' }}
-                      value={params[item.key]}
-                      allowClear
-                      {...(item.props || {})}
-                      onChange={evt =>
-                        changeParams({ target: { value: evt } }, item.key)
-                      }
-                      options={item.formatedOption as any}
-                    ></Select>
-                  )}
-                  {item.component && ['date'].includes(item.component) && (
-                    <DatePicker
-                      style={{ width: '100%' }}
-                      {...(item.props || {})}
-                      value={params[item.key]}
-                      onChange={evt =>
-                        changeParams({ target: { value: evt } }, item.key)
-                      }
-                    ></DatePicker>
-                  )}
-                  {item.component && ['daterange'].includes(item.component) && (
-                    <RangePicker
-                      style={{ width: '100%' }}
-                      {...(item.props || {})}
-                      onChange={evt =>
-                        changeParams({ target: { value: evt } }, item.key)
-                      }
-                      value={params[item.key]}
-                    ></RangePicker>
-                  )}
+                  {!!item.component &&
+                    !filterRenderType.includes(item.component) &&
+                    React.cloneElement(Comp, {
+                      value: params[item.key],
+                      onChange: evt => changeParams(evt, item.key),
+                    })}
+                  {!!item.component &&
+                    filterRenderType.includes(item.component) &&
+                    item.component === 'select' && (
+                      <Select
+                        style={{ width: '100%' }}
+                        value={params[item.key]}
+                        allowClear
+                        {...(item.props || {})}
+                        onChange={evt =>
+                          changeParams({ target: { value: evt } }, item.key)
+                        }
+                        options={item.formatedOption as any}
+                      ></Select>
+                    )}
+                  {!!item.component &&
+                    filterRenderType.includes(item.component) &&
+                    item.component &&
+                    ['date'].includes(item.component) && (
+                      <DatePicker
+                        style={{ width: '100%' }}
+                        {...(item.props || {})}
+                        value={params[item.key]}
+                        onChange={evt =>
+                          changeParams({ target: { value: evt } }, item.key)
+                        }
+                      ></DatePicker>
+                    )}
+                  {!!item.component &&
+                    filterRenderType.includes(item.component) &&
+                    item.component &&
+                    ['daterange'].includes(item.component) && (
+                      <RangePicker
+                        style={{ width: '100%' }}
+                        {...(item.props || {})}
+                        onChange={evt =>
+                          changeParams({ target: { value: evt } }, item.key)
+                        }
+                        value={params[item.key]}
+                      ></RangePicker>
+                    )}
                   {!item.component &&
                     React.cloneElement(<Item></Item>, {
                       val: params[item.key],

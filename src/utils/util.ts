@@ -9,3 +9,14 @@ export const formatEmptyRecord = (
   });
   return res;
 };
+
+export const throttle = (func, delay = 500) => {
+  let time = 0;
+  return function (...args) {
+    const nowT = new Date().getTime();
+    if (!time || nowT - time > delay) {
+      func.apply(this, args);
+      time = nowT;
+    }
+  };
+};

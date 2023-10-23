@@ -27,3 +27,18 @@ interface MenuItem {
   icon?: string | React.ReactElement;
   key?: string;
 }
+
+interface BaseComponentMap {
+  input: React.ReactNode;
+  checkbox: React.ReactNode;
+  inputNumber: React.ReactNode;
+  radio: React.ReactNode;
+  rate: React.ReactNode;
+  slider: React.ReactNode;
+}
+
+interface FullInputComponentMap extends BaseComponentMap {
+  select: any;
+  date: any;
+  daterange: any;
+}

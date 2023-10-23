@@ -1,5 +1,6 @@
 import { Input } from 'antd';
 import dayjs from 'dayjs';
+import { EditItem } from '@/components/edit';
 import { FilterItem, CustomColumnsType } from '@/components/table';
 
 export const filterItems: FilterItem[] = [
@@ -124,36 +125,77 @@ export const columns: CustomColumnsType[] = [
     dataIndex: 'address',
     key: '2',
     width: 150,
+    render: () => <div>23232</div>,
   },
   {
     title: 'Column 3',
-    dataIndex: 'address',
+    dataIndex: 'address1',
     key: '3',
     width: 150,
   },
   {
     title: 'Column 4',
-    dataIndex: 'address',
+    dataIndex: 'address2',
     key: '4',
     width: 150,
   },
   {
     title: 'Column 5',
-    dataIndex: 'address',
+    dataIndex: 'address3',
     key: '5',
     width: 150,
   },
   {
     title: 'Column 6',
-    dataIndex: 'address',
+    dataIndex: 'address4',
     key: '6',
     width: 150,
   },
   {
     title: 'Column 7',
-    dataIndex: 'address',
+    dataIndex: 'address5',
     key: '7',
     width: 1150,
   },
-  { title: 'Column 8', dataIndex: 'address', key: '8' },
+  { title: 'Column 8', dataIndex: 'address6', key: '8' },
+];
+
+export const editForm: EditItem[] = [
+  {
+    key: 'datetimerange',
+    label: '名称',
+    component: 'input',
+    // rules: [
+    //   {
+    //     required: true,
+    //     message: '不能为空',
+    //     validateTrigger: 'onBlur',
+    //   },
+    // ],
+  },
+  {
+    key: 'datetime',
+    label: '名称',
+    component: 'select',
+  },
+  {
+    key: 'datetime2',
+    label: '名称',
+    render: ({ props, ...formProps }) => {
+      return (
+        <div>
+          <input {...formProps} {...props}></input>
+        </div>
+      );
+    },
+  },
+  {
+    key: 'datetime3',
+    label: '名称',
+    component: 'date',
+    props: {
+      showTime: { format: 'YYYY-MM-DD HH:mm:ss' },
+      format: 'YYYY-MM-DD HH:mm:ss',
+    },
+  },
 ];
