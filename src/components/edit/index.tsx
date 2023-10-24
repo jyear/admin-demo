@@ -111,7 +111,7 @@ const Edit = React.forwardRef<any, Props>(
 
     const defaultFooter = () => {
       return (
-        <div>
+        <div className="edit-footer">
           <Button onClick={cancelClick}>{cancelText}</Button>
           <Button loading={isLoading} type={okType} onClick={confirmClick}>
             {okText}

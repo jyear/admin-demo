@@ -8,6 +8,7 @@ const config: Array<RouteItem> = [
       title: 'Dashbord',
     },
     useLayer: true,
+    withAuth: false,
     key: 'Dashbord',
   },
 ];

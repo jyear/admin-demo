@@ -2,7 +2,7 @@ import store from '@/store';
 import * as User from './user/action';
 
 const files = {
-  userActions: User,
+  user: User,
 };
 const actObjs = {};
 

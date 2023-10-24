@@ -97,6 +97,14 @@ export const filterItems: FilterItem[] = [
 
 export const columns: CustomColumnsType[] = [
   {
+    title: 'Full Name12',
+    width: 100,
+    dataIndex: 'index',
+    key: 'name12',
+    fixed: 'left',
+    overEllipise: true,
+  },
+  {
     title: 'Full Name',
     width: 100,
     dataIndex: 'name',

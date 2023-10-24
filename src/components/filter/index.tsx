@@ -51,6 +51,7 @@ interface Props {
   items: FilterItem[];
   paramFromUrl?: boolean;
   onFilter?: (p: Record<string, unknown>) => void;
+  ctrls?: React.ReactNode | React.ReactElement;
 }
 
 // eslint-disable-next-line react/display-name
@@ -206,6 +207,7 @@ const Filter = React.forwardRef(
         ...(Object.keys(initParams()).length > 0 ? {} : defaultP), // 只有第一次不带参数进入的时候才会使用defaultValue
         ...urlParams,
       };
+
       setParams(toParams);
       // 出发初始化事件通知外部
       formatFilter(toParams);
@@ -340,10 +342,20 @@ const Filter = React.forwardRef(
               </div>
             );
           })}
-          <Button type={'primary'} className="filter-btn" onClick={filterClick}>
-            筛选
-          </Button>
-          <Button onClick={resetClick}>重置</Button>
+
+          {innerItems?.length && (
+            <>
+              <Button
+                type={'primary'}
+                className="filter-btn"
+                onClick={filterClick}
+              >
+                筛选
+              </Button>
+              <Button onClick={resetClick}>重置</Button>
+            </>
+          )}
+          {props.ctrls}
         </div>
       </div>
     );

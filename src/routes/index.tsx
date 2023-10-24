@@ -1,6 +1,12 @@
 import _ from 'lodash';
 import React, { useContext, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import SkeletonList from '@/components/skeletionList';
 import GlobalContext from '@/context/global';
 import BaseLayer from '@/layer/baseLayer';
@@ -34,7 +40,23 @@ const genMenus = (menus, routKeyMap, permission): MenuItem[] => {
   return menuRes;
 };
 
-const CustomRoutes = () => {
+const CheckAuth = ({ rout, ...props }: any) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  React.useEffect(() => {
+    if (
+      !localStorage.getItem('token') &&
+      rout.withAuth &&
+      location.pathname !== '/login'
+    ) {
+      navigate(`/login?form=${encodeURIComponent(location.pathname)}`);
+      return;
+    }
+  }, [location.pathname]);
+  return props.children;
+};
+
+const CustomRoutes = ({ ...props }) => {
   const [routes, setRoutes] = React.useState<Array<RouteItem>>([]);
   const globalContext = useContext(GlobalContext) as GlobalContext;
 
@@ -60,7 +82,7 @@ const CustomRoutes = () => {
         const LazyCom = React.lazy(el);
         rout.element = (
           <Suspense fallback={<SkeletonList></SkeletonList>}>
-            <LazyCom></LazyCom>
+            <LazyCom {...props}></LazyCom>
           </Suspense>
         );
       }
@@ -71,8 +93,6 @@ const CustomRoutes = () => {
         React.cloneElement(rout.element, { key: rout.key })
       );
 
-      console.log(globalContext.permission);
-
       if (
         rout.withAuth &&
         rout.key &&
@@ -81,6 +101,12 @@ const CustomRoutes = () => {
       ) {
         return;
       }
+      const Ele = rout.element;
+      rout.element = (
+        <CheckAuth rout={rout}>
+          {React.cloneElement(Ele, { ...props })}
+        </CheckAuth>
+      );
       routesCfg.push(rout);
     });
     const useMenus = genMenus(null, routKeyMap, globalContext.permission);

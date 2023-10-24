@@ -14,6 +14,7 @@ export interface FilterItem extends TableFilterItem {}
 export interface CustomColumnsType extends ColumnType<any> {
   minWidth?: number;
   overEllipise?: boolean;
+  total?: boolean;
   formatter?: ({
     text,
     index,
@@ -25,10 +26,11 @@ export interface CustomColumnsType extends ColumnType<any> {
   }) => string | number;
 }
 
-interface CustomTableRef {
+export interface CustomTableRef {
   refresh: () => void;
 }
 
+export interface TableProps extends Props {}
 interface Props {
   columns: CustomColumnsType[];
   autoY?: boolean;
@@ -40,6 +42,7 @@ interface Props {
   defaultUnShowColumns?: string[] | 'none';
   showFilterColumns?: boolean;
   tableKey?: string;
+  ctrls?: React.ReactNode | React.ReactElement;
 }
 
 const CustomTable = React.forwardRef<CustomTableRef, Props>(
@@ -55,16 +58,21 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       defaultUnShowColumns = 'none',
       showFilterColumns = true,
       tableKey = '',
+      ...props
     },
     ref,
   ) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const defaultColumnWidth = 100;
     const pageInfo = React.useRef<Record<string, number>>({
-      page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
-      limit: searchParams.get('limit')
-        ? Number(searchParams.get('limit'))
-        : limit,
+      page:
+        searchParams.get('page') && mapToUrl
+          ? Number(searchParams.get('page'))
+          : 1,
+      limit:
+        searchParams.get('limit') && mapToUrl
+          ? Number(searchParams.get('limit'))
+          : limit,
     });
     const [total, setTotal] = React.useState<number>(0);
     const [innerColumns, setInnerColumns] = React.useState<CustomColumnsType[]>(
@@ -79,7 +87,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     const tableHeaderRef = React.useRef<HTMLDivElement | null>(null);
     const tableFooterRef = React.useRef<HTMLDivElement | null>(null);
     const filterComponent = React.useRef<FilterComponent | null>(null);
-    const innerTableKey = React.useRef<string>('');
+    const innerTableKey = React.useRef<string>(tableKey);
     const [loading, setLoading] = React.useState(false);
     // 展示列
     const [innerUnShow, setInnerUnShow] = React.useState<(string | number)[]>(
@@ -93,7 +101,16 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       const headerH = tableHeaderRef.current?.clientHeight || 0;
       const footerH = tableFooterRef.current?.clientHeight || 0;
       const containerH = tableContainerRef.current?.clientHeight || 0;
-      const toH = containerH - headerH - footerH - 70;
+      const tableHeader = tableContainerRef.current?.querySelectorAll(
+        '.ant-table-header.ant-table-sticky-holder',
+      )[0];
+      const toH =
+        containerH -
+        headerH -
+        footerH -
+        (tableHeader?.clientHeight || 0) -
+        (headerH ? 10 : 0);
+
       setScrollInfo(state => ({
         ...state,
         y: toH,
@@ -164,6 +181,8 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
           col.render = (text, record, index) => {
             let rVal = text;
             if (col.dataIndex === 'index') {
+              if (col.total)
+                return pageInfo.current.page * pageInfo.current.limit + 1;
               return index + 1;
             }
             if (col.formatter) {
@@ -260,13 +279,14 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
 
     return (
       <div className="table-component" ref={tableContainerRef}>
-        {filterItems.length > 0 && (
+        {(filterItems?.length || props.ctrls) && (
           <div className="table-component-header" ref={tableHeaderRef}>
             <Filter
-              items={filterItems}
+              items={filterItems || []}
               onFilter={onFilter}
               ref={filterComponent}
               paramFromUrl={mapToUrl}
+              ctrls={props.ctrls}
             ></Filter>
           </div>
         )}
