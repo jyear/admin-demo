@@ -61,13 +61,14 @@ const DrawBox = React.forwardRef<any, Props>(
         className={`${className} draw-box`}
       >
         {props.children}
-        {!props.children && type === 'table' && innerOpen && (
+        {!props.children && type === 'table' && open && (
           <Table
             {...{
               ...tableConfig,
               mapToUrl: false,
             }}
             ref={tableRef}
+            key={tableConfig.tableKey}
           ></Table>
         )}
       </Drawer>

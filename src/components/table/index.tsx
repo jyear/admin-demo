@@ -60,6 +60,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       showFilterColumns = true,
       tableKey = '',
       filterItemMinWidth = 300,
+      ctrls = null,
       ...props
     },
     ref,
@@ -80,6 +81,10 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     const [innerColumns, setInnerColumns] = React.useState<CustomColumnsType[]>(
       [],
     );
+    const [renderColumns, setRenderColumns] = React.useState<
+      CustomColumnsType[]
+    >([]);
+
     const innerColumnsRef = React.useRef<
       Record<string | number, CustomColumnsType>
     >({});
@@ -95,6 +100,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     const [innerUnShow, setInnerUnShow] = React.useState<(string | number)[]>(
       [],
     );
+
     const [scrollInfo, setScrollInfo] = React.useState<any>({
       y: 'auto',
       x: '100%',
@@ -122,24 +128,11 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       )[0] as HTMLDivElement;
       if (tableContainer) tableContainer.style.height = `${toH}px`;
     };
+
     // 最终需要展示的列
-    const selectedColumns = React.useMemo(() => {
-      const showColumns: CustomColumnsType[] = [];
-      let x: number = 0;
-      innerColumns.forEach((col: CustomColumnsType) => {
-        if (!innerUnShow.includes(col.key as string)) {
-          showColumns.push(col);
-          x += col.width ? parseInt(`${col.width}`) : defaultColumnWidth;
-        }
-      });
-      if (innerTableKey.current) {
-        localStorage.setItem(
-          `${innerTableKey.current}_unShow`,
-          innerUnShow.join(','),
-        );
-      }
-      setScrollInfo(state => ({ ...state, x }));
-      return showColumns;
+    React.useEffect(() => {
+      computRenderColumns(innerColumns);
+      // doResize();
     }, [innerColumns, innerUnShow]);
 
     // ref 操作
@@ -153,7 +146,23 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     React.useEffect(() => {
       if (!tableKey) {
         innerTableKey.current = `table_${window.location.pathname}`;
+      } else {
+        innerTableKey.current = tableKey;
       }
+      // 不展示列处理
+      let toUnShow: (string | number)[] = [];
+      if (defaultUnShowColumns !== 'none' && showFilterColumns) {
+        toUnShow = [...defaultUnShowColumns];
+      }
+      // debugger;
+      const localUnShow = localStorage.getItem(
+        `${innerTableKey.current}_unShow`,
+      );
+      console.log('获取缓存', innerTableKey.current, localUnShow);
+      if (localUnShow && localUnShow.length > 0) {
+        toUnShow = localUnShow.split(',');
+      }
+      setInnerUnShow(toUnShow);
       if (!autoY) {
         window.addEventListener('resize', doResize);
         setTimeout(() => {
@@ -172,9 +181,10 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     React.useEffect(() => {
       const icolumns: CustomColumnsType[] = [];
       innerColumnsRef.current = {};
-
       columns.forEach(col => {
-        innerColumnsRef.current[col.dataIndex as string | number] = { ...col };
+        innerColumnsRef.current[col.dataIndex as string | number] = {
+          ...col,
+        };
         if (!col.width) {
           col.minWidth = 100;
         }
@@ -213,21 +223,21 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
 
         icolumns.push(col);
       });
-
-      // 不展示列处理
-      let toUnShow: (string | number)[] = [];
-      if (defaultUnShowColumns !== 'none' && showFilterColumns) {
-        toUnShow = [...defaultUnShowColumns];
-      }
-      const localUnShow = localStorage.getItem(
-        `${innerTableKey.current}_unShow`,
-      );
-      if (localUnShow && localUnShow.length > 0) {
-        toUnShow = localUnShow.split(',');
-      }
-      setInnerUnShow(toUnShow);
       setInnerColumns(icolumns);
     }, [columns]);
+
+    const computRenderColumns = data => {
+      const showColumns: CustomColumnsType[] = [];
+      let x: number = 0;
+      data.forEach((col: CustomColumnsType) => {
+        if (!innerUnShow.includes(col.key as string)) {
+          showColumns.push(col);
+          x += col.width ? parseInt(`${col.width}`) : defaultColumnWidth;
+        }
+      });
+      setRenderColumns(showColumns);
+      setScrollInfo(state => ({ ...state, x }));
+    };
 
     const doGetData = async () => {
       const requestParams = {
@@ -269,19 +279,23 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     };
 
     const showColumnChange = (key: string) => {
+      let arr: (string | number)[] = [];
       if (!innerUnShow.includes(key)) {
-        setInnerUnShow([...innerUnShow, key]);
+        arr = [...innerUnShow, key];
       } else {
         const idx = innerUnShow.indexOf(key);
-        const arr = [...innerUnShow];
+        arr = [...innerUnShow];
         arr.splice(idx, 1);
-        setInnerUnShow([...arr]);
+      }
+      setInnerUnShow([...arr]);
+      if (innerTableKey.current) {
+        localStorage.setItem(`${innerTableKey.current}_unShow`, arr.join(','));
       }
     };
 
     return (
       <div className="table-component" ref={tableContainerRef}>
-        {(filterItems?.length || props.ctrls) && (
+        {(filterItems?.length || ctrls) && (
           <div className="table-component-header" ref={tableHeaderRef}>
             <Filter
               items={filterItems || []}
@@ -289,7 +303,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
               ref={filterComponent}
               paramFromUrl={mapToUrl}
               itemMinWidth={filterItemMinWidth}
-              ctrls={props.ctrls}
+              ctrls={ctrls}
             ></Filter>
           </div>
         )}
@@ -298,10 +312,11 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
             sticky
             loading={loading}
             pagination={false}
-            columns={selectedColumns}
+            columns={renderColumns}
             dataSource={data}
             rowKey={rowKey}
             scroll={scrollInfo}
+            {...props}
           ></Table>
           {showFilterColumns && (
             <div className="table-component-section-filter">

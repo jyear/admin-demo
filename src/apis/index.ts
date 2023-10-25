@@ -23,7 +23,7 @@ Object.keys(files).forEach((key: string) => {
       const method = apiItem.method || 'get';
       const path = apiItem.path.startsWith('http')
         ? apiItem.path
-        : `${config.BaseUrl}${apiItem.path}`;
+        : `${config.api}${apiItem.path}`;
       return requset[method](path, data, option);
     };
   });

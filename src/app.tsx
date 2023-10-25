@@ -1,6 +1,7 @@
 import React from 'react';
 import GlobalContext from '@/context/global';
 import Routes from '@/routes';
+import actions from '@/store/actions';
 
 const App = () => {
   const [globalContext, setGlobalContext] = React.useState<GlobalContext>({
@@ -12,6 +13,7 @@ const App = () => {
   });
 
   React.useEffect(() => {
+    actions.user.setUserInfo();
     setTimeout(() => {
       setGlobalContext(context => ({
         ...context,

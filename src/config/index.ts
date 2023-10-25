@@ -1,12 +1,12 @@
 const config = {
   DEV: {
-    api: 'https://baidu.com',
+    api: 'http://wallet-admin-test-api.flipped.space',
   },
   TEST: {
-    api: 'https://baidu.com',
+    api: 'http://wallet-admin-test-api.flipped.space',
   },
   PROD: {
-    api: 'https://baidu.com',
+    api: 'https://wallet-admin-api.flipped.ltd',
   },
 };
 

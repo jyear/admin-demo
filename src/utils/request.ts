@@ -27,9 +27,10 @@ instance.interceptors.response.use(
       case 1002: // 其他设备登录
         message.error('错误');
         break;
-      case 0:
+      case 200:
         return response.data.data;
       default:
+        message.error(response.data.message);
         break;
     }
 
