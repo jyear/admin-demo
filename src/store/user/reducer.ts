@@ -1,7 +1,7 @@
 import { handleActions, Action } from 'redux-actions';
 import { SET_USER } from './types';
 
-const defaultState = {
+const defaultState: User.UserInfo = {
   name: '张三丰',
   token: '123',
 };

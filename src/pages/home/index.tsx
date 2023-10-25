@@ -64,11 +64,23 @@ const Home = () => {
         ]}
         filterItems={FilterItems}
         ctrls={
-          <div>
-            <Button type="primary" style={{ marginLeft: '10px' }}>
+          <>
+            <Button type="primary" style={{ marginRight: '10px' }}>
               新增
             </Button>
-          </div>
+            <Button type="primary" style={{ marginRight: '10px' }}>
+              新增
+            </Button>
+            <Button type="primary" style={{ marginRight: '10px' }}>
+              新增
+            </Button>
+            <Button type="primary" style={{ marginRight: '10px' }}>
+              新增
+            </Button>
+            <Button type="primary" style={{ marginRight: '10px' }}>
+              新增
+            </Button>
+          </>
         }
         mapToUrl={true}
       ></Table>

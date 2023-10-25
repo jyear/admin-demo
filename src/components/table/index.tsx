@@ -43,6 +43,7 @@ interface Props {
   showFilterColumns?: boolean;
   tableKey?: string;
   ctrls?: React.ReactNode | React.ReactElement;
+  filterItemMinWidth?: number;
 }
 
 const CustomTable = React.forwardRef<CustomTableRef, Props>(
@@ -58,6 +59,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       defaultUnShowColumns = 'none',
       showFilterColumns = true,
       tableKey = '',
+      filterItemMinWidth = 300,
       ...props
     },
     ref,
@@ -286,6 +288,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
               onFilter={onFilter}
               ref={filterComponent}
               paramFromUrl={mapToUrl}
+              itemMinWidth={filterItemMinWidth}
               ctrls={props.ctrls}
             ></Filter>
           </div>

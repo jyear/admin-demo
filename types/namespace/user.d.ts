@@ -5,9 +5,7 @@ declare namespace User {
     getUserInfo: () => Promise<UserInfo>;
   }
 
-  interface State {
-    userInfo: UserInfo;
-  }
+  interface State extends UserInfo {}
 
   interface Action {
     userLogin: ReduxActions.ActionFunction0<ReduxActions.Action<UserInfo>>;

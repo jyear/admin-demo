@@ -77,20 +77,20 @@ const CustomRoutes = ({ ...props }) => {
       routKeyMap[rout.key.toLocaleLowerCase()] = { ...rout };
       //{ key: rout.key }
 
-      const el = rout.element;
-      if (typeof el === 'function') {
-        const LazyCom = React.lazy(el);
-        rout.element = (
+      let Ele = rout.element;
+      if (typeof Ele === 'function') {
+        const LazyCom = React.lazy(Ele);
+        Ele = (
           <Suspense fallback={<SkeletonList></SkeletonList>}>
             <LazyCom {...props}></LazyCom>
           </Suspense>
         );
       }
 
-      rout.element = rout.useLayer ? (
-        <BaseLayer>{React.cloneElement(rout.element)}</BaseLayer>
+      Ele = rout.useLayer ? (
+        <BaseLayer>{React.cloneElement(Ele)}</BaseLayer>
       ) : (
-        React.cloneElement(rout.element, { key: rout.key })
+        React.cloneElement(Ele, { key: rout.key })
       );
 
       if (
@@ -101,7 +101,6 @@ const CustomRoutes = ({ ...props }) => {
       ) {
         return;
       }
-      const Ele = rout.element;
       rout.element = (
         <CheckAuth rout={rout}>
           {React.cloneElement(Ele, { ...props })}

@@ -52,12 +52,19 @@ interface Props {
   paramFromUrl?: boolean;
   onFilter?: (p: Record<string, unknown>) => void;
   ctrls?: React.ReactNode | React.ReactElement;
+  itemMinWidth?: number;
 }
 
 // eslint-disable-next-line react/display-name
 const Filter = React.forwardRef(
   (
-    { items = [], onFilter = () => {}, paramFromUrl = true, ...props }: Props,
+    {
+      items = [],
+      onFilter = () => {},
+      paramFromUrl = true,
+      itemMinWidth = 300,
+      ...props
+    }: Props,
     ref,
   ) => {
     const [searchParams] = useSearchParams();
@@ -68,7 +75,9 @@ const Filter = React.forwardRef(
       Record<string, any>
     >({});
     const filterRenderType = ['select', 'date', 'daterange'];
-
+    const filterRef = React.useRef<HTMLDivElement>(null);
+    const [itemStyle, setItemStyle] = React.useState({});
+    const colNum = React.useRef<number>(4);
     const [params, setParams] = React.useState<Record<string, any>>({});
 
     useImperativeHandle(ref, (): FilterComponent => {
@@ -120,6 +129,32 @@ const Filter = React.forwardRef(
       }
       return curEncode ? curEncode(val) : val;
     };
+    React.useEffect(() => {
+      window.addEventListener('resize', () => {
+        doResize();
+      });
+      doResize();
+      return () => {
+        window.removeEventListener('resize', () => {
+          doResize();
+        });
+      };
+    }, []);
+
+    const doResize = () => {
+      if (!filterRef.current) {
+        setTimeout(() => doResize, 1000);
+        return;
+      }
+      const w = filterRef.current.clientWidth;
+      const col = Math.floor(w / itemMinWidth);
+      colNum.current = col;
+      setItemStyle(sty => ({
+        ...sty,
+        flex: `0 0 ${(w - 40 - (col - 1) * 20) / col}px`,
+      }));
+    };
+
     // 初始化筛选项
     React.useEffect(() => {
       if (items.length <= 0) {
@@ -207,7 +242,6 @@ const Filter = React.forwardRef(
         ...(Object.keys(initParams()).length > 0 ? {} : defaultP), // 只有第一次不带参数进入的时候才会使用defaultValue
         ...urlParams,
       };
-
       setParams(toParams);
       // 出发初始化事件通知外部
       formatFilter(toParams);
@@ -272,9 +306,9 @@ const Filter = React.forwardRef(
     });
 
     return (
-      <div className="filter-component">
+      <div className="filter-component" ref={filterRef}>
         <div className="filter-form">
-          {innerItems.map((item: InnerFilterItem) => {
+          {innerItems.map((item: InnerFilterItem, idx: number) => {
             let Item, Comp;
             if (item.render) {
               Item = item.render;
@@ -283,7 +317,14 @@ const Filter = React.forwardRef(
               Comp = componentMap[item.component];
             }
             return (
-              <div key={item.key} className="filter-form-item">
+              <div
+                key={item.key}
+                className="filter-form-item"
+                style={{
+                  ...itemStyle,
+                  marginRight: (idx + 1) % colNum.current === 0 ? '0' : '20px',
+                }}
+              >
                 <div className="filter-form-item-label">{item.label}:</div>
                 <div className="filter-form-item-value">
                   {!!item.component &&
@@ -342,7 +383,6 @@ const Filter = React.forwardRef(
               </div>
             );
           })}
-
           {innerItems?.length && (
             <>
               <Button
@@ -352,7 +392,9 @@ const Filter = React.forwardRef(
               >
                 筛选
               </Button>
-              <Button onClick={resetClick}>重置</Button>
+              <Button onClick={resetClick} className="filter-btn">
+                重置
+              </Button>
             </>
           )}
           {props.ctrls}
