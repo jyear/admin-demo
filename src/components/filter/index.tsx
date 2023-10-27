@@ -130,14 +130,18 @@ const Filter = React.forwardRef(
       return curEncode ? curEncode(val) : val;
     };
     React.useEffect(() => {
-      window.addEventListener('resize', () => {
+      let timer;
+      const myObserver: ResizeObserver = new ResizeObserver(() => {
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+        // timer = setTimeout(doResize, 30);
         doResize();
       });
-      doResize();
+      myObserver.observe(filterRef.current as Element);
       return () => {
-        window.removeEventListener('resize', () => {
-          doResize();
-        });
+        myObserver.disconnect();
       };
     }, []);
 

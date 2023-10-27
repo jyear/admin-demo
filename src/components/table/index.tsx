@@ -1,6 +1,7 @@
 import { SettingFilled } from '@ant-design/icons';
 import { Table, Pagination, Tooltip, Popover, Button, Checkbox } from 'antd';
 import type { ColumnType } from 'antd/es/table';
+import classNames from 'classnames';
 import React, { useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Filter, {
@@ -59,7 +60,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       defaultUnShowColumns = 'none',
       showFilterColumns = true,
       tableKey = '',
-      filterItemMinWidth = 300,
+      filterItemMinWidth = 400,
       ctrls = null,
       ...props
     },
@@ -106,6 +107,8 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       x: '100%',
     });
     const doResize = () => {
+      if (autoY) return;
+
       const headerH = tableHeaderRef.current?.clientHeight || 0;
       const footerH = tableFooterRef.current?.clientHeight || 0;
       const containerH = tableContainerRef.current?.clientHeight || 0;
@@ -118,7 +121,13 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
         footerH -
         (tableHeader?.clientHeight || 0) -
         (headerH ? 10 : 0);
-
+      console.log(
+        containerH,
+        headerH,
+        footerH,
+        tableHeader?.clientHeight || 0,
+        headerH ? 10 : 0,
+      );
       setScrollInfo(state => ({
         ...state,
         y: toH,
@@ -158,22 +167,29 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       const localUnShow = localStorage.getItem(
         `${innerTableKey.current}_unShow`,
       );
-      console.log('获取缓存', innerTableKey.current, localUnShow);
       if (localUnShow && localUnShow.length > 0) {
         toUnShow = localUnShow.split(',');
       }
       setInnerUnShow(toUnShow);
+      let myObserver: ResizeObserver | null = null;
       if (!autoY) {
-        window.addEventListener('resize', doResize);
-        setTimeout(() => {
-          doResize();
-        }, 200);
+        let timer;
+        myObserver = new ResizeObserver(() => {
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+          }
+
+          timer = setTimeout(doResize, 50);
+        });
+        myObserver.observe(tableContainerRef.current as Element);
       }
+
       if (filterItems.length <= 0) {
         doGetData();
       }
       return () => {
-        if (!autoY) window.removeEventListener('resize', doResize);
+        if (myObserver) myObserver.disconnect();
       };
     }, []);
 
@@ -251,6 +267,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       try {
         setLoading(true);
         const res = await api(requestParams);
+        doResize();
         setData(res.list);
         setTotal(res.total);
       } finally {
@@ -307,7 +324,11 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
             ></Filter>
           </div>
         )}
-        <div className="table-component-section">
+        <div
+          className={classNames('table-component-section', {
+            'custom-table_full': false,
+          })}
+        >
           <Table
             sticky
             loading={loading}
@@ -315,7 +336,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
             columns={renderColumns}
             dataSource={data}
             rowKey={rowKey}
-            scroll={scrollInfo}
+            scroll={{ ...scrollInfo }}
             {...props}
           ></Table>
           {showFilterColumns && (
