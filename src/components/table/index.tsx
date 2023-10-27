@@ -95,6 +95,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     const tableHeaderRef = React.useRef<HTMLDivElement | null>(null);
     const tableFooterRef = React.useRef<HTMLDivElement | null>(null);
     const filterComponent = React.useRef<FilterComponent | null>(null);
+    const tableContentRef = React.useRef<HTMLDivElement | null>(null);
     const innerTableKey = React.useRef<string>(tableKey);
     const [loading, setLoading] = React.useState(false);
     // 展示列
@@ -141,7 +142,6 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     // 最终需要展示的列
     React.useEffect(() => {
       computRenderColumns(innerColumns);
-      // doResize();
     }, [innerColumns, innerUnShow]);
 
     // ref 操作
@@ -175,14 +175,14 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       if (!autoY) {
         let timer;
         myObserver = new ResizeObserver(() => {
+          console.log(9999);
           if (timer) {
             clearTimeout(timer);
             timer = null;
           }
-
           timer = setTimeout(doResize, 50);
         });
-        myObserver.observe(tableContainerRef.current as Element);
+        myObserver.observe(tableContentRef.current as Element);
       }
 
       if (filterItems.length <= 0) {
@@ -328,6 +328,7 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
           className={classNames('table-component-section', {
             'custom-table_full': false,
           })}
+          ref={tableContentRef}
         >
           <Table
             sticky
