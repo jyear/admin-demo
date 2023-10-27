@@ -1,5 +1,6 @@
 import { Skeleton, Result, Button } from 'antd';
 import { useContext } from 'react';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import SkeletonList from '@/components/skeletionList';
 import GlobalContext from '@/context/global';
@@ -8,6 +9,7 @@ import './index.less';
 const ExcepPage = () => {
   const location = useLocation();
   const globalContext = useContext(GlobalContext) as GlobalContext;
+  const { type } = useSelector((state: Store.State) => state.framework);
   const active = true;
   const menuSkeletion = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -29,18 +31,20 @@ const ExcepPage = () => {
       <div className="main">
         <div className="main-header"></div>
         <div className="main-container">
-          <div
-            className="main-container-side"
-            style={{ width: '240px', padding: '10px' }}
-          >
-            {menuSkeletion.map(item => {
-              return (
-                <div key={item} className="skeletion-menu">
-                  <Skeleton.Input active={active} block={true} />
-                </div>
-              );
-            })}
-          </div>
+          {type === 1 && (
+            <div
+              className="main-container-side"
+              style={{ width: '240px', padding: '10px' }}
+            >
+              {menuSkeletion.map(item => {
+                return (
+                  <div key={item} className="skeletion-menu">
+                    <Skeleton.Input active={active} block={true} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
           <SkeletonList></SkeletonList>
         </div>
       </div>

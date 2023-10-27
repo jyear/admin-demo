@@ -1,11 +1,31 @@
 .main-side {
   width: 240px;
-  background-color: #fff;
   height: 100%;
   display: flex;
   flex-flow: column;
   align-items: stretch;
-  transition: width 0.2s linear;
+  &.pc_side {
+    transition: width 0.2s linear;
+  }
+  &.mobile_side {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100vw;
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.5);
+    &.close {
+      width: 0px;
+    }
+    .main-side-menu {
+      width: 80%;
+      transition: 0.2s linear;
+      &.main-side-menu-type {
+        width: 0;
+      }
+    }
+  }
   &.close {
     width: 60px;
   }
@@ -16,6 +36,7 @@
     flex: 1;
     min-height: 0;
     overflow: auto;
+    background-color: #fff;
   }
   .main-side-ctrl-coll {
     width: 100%;
@@ -25,6 +46,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    background-color: #fff;
   }
   .main-side-trigger {
     font-size: 20px;

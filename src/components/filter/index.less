@@ -1,13 +1,16 @@
 .filter-component {
   background-color: #fff;
   box-sizing: border-box;
-  padding: 10px 20px 10px 20px;
+  padding: 10px 10px 10px 20px;
+  display: flex;
+  align-items: stretch;
   .filter-form {
     display: flex;
     flex-flow: row;
     justify-content: flex-start;
     flex-wrap: wrap;
     align-items: center;
+    transition: all 0.2s linear;
   }
   .filter-form-item {
     flex: 0 0 calc(25% - 20px);
@@ -28,6 +31,19 @@
     min-width: 0;
   }
   .filter-btn {
-    margin: 5px 10px 10px 0;
+    margin: 10px 10px 10px 0;
+  }
+  .filter-more {
+    transform: rotate(90deg);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    &.filter-more-close {
+      transform: rotate(-90deg);
+    }
+  }
+  .filter-more-box {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
   }
 }

@@ -1,5 +1,7 @@
 import { Watermark } from 'antd';
+import classNames from 'classnames';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import Header from '@/components/header';
 import Side from '@/components/side';
 import './index.less';
@@ -9,6 +11,8 @@ interface Props {
 }
 
 const BaseLayer: React.FC<Props> = ({ ...props }) => {
+  const { type } = useSelector((state: Store.State) => state.framework);
+
   return (
     <Watermark
       style={{ height: '100%' }}
@@ -24,8 +28,12 @@ const BaseLayer: React.FC<Props> = ({ ...props }) => {
       <div className="main">
         <Header></Header>
         <div className="main-container">
-          <div className="main-container-side">
-            <Side></Side>
+          <div
+            className={classNames('main-container-side', {
+              mobile: type === 2,
+            })}
+          >
+            <Side showCollpose={type === 1}></Side>
           </div>
           <div className="main-container-plane">{props.children}</div>
         </div>

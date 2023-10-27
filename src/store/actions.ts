@@ -1,8 +1,10 @@
 import store from '@/store';
+import * as Framework from './framework/action';
 import * as User from './user/action';
 
 const files = {
   user: User,
+  framework: Framework,
 };
 const actObjs = {};
 

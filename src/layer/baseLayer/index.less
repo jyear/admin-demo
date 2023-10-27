@@ -7,9 +7,15 @@
     min-height: 0;
     display: flex;
     flex-flow: row;
+    position: relative;
   }
   .main-container-side {
     height: 100%;
+    &.mobile {
+      position: relative;
+      height: 100%;
+      width: 0;
+    }
   }
   .main-container-plane {
     height: 100%;

@@ -86,9 +86,9 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
       CustomColumnsType[]
     >([]);
 
-    const innerColumnsRef = React.useRef<
-      Record<string | number, CustomColumnsType>
-    >({});
+    // const innerColumnsRef = React.useRef<
+    //   Record<string | number, CustomColumnsType>
+    // >({});
     const filterParams = React.useRef<Record<string, unknown>>({});
     const [data, setData] = React.useState<Array<any>>([]);
     const tableContainerRef = React.useRef<HTMLDivElement | null>(null);
@@ -196,11 +196,11 @@ const CustomTable = React.forwardRef<CustomTableRef, Props>(
     // 初始化columns
     React.useEffect(() => {
       const icolumns: CustomColumnsType[] = [];
-      innerColumnsRef.current = {};
+      // innerColumnsRef.current = {};
       columns.forEach(col => {
-        innerColumnsRef.current[col.dataIndex as string | number] = {
-          ...col,
-        };
+        // innerColumnsRef.current[col.dataIndex as string | number] = {
+        //   ...col,
+        // };
         if (!col.width) {
           col.minWidth = 100;
         }

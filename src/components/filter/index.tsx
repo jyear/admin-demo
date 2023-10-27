@@ -1,6 +1,8 @@
-import { Input, Select, Button, DatePicker } from 'antd';
+import { DoubleRightOutlined } from '@ant-design/icons';
+import { Select, Button, DatePicker } from 'antd';
+import classNames from 'classnames';
 import dayjs from 'dayjs';
-import React, { ReactElement, ReactNode, useImperativeHandle } from 'react';
+import React, { ReactElement, useImperativeHandle } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { componentMap } from '@/utils/antd';
 import { formatEmptyRecord, throttle } from '@/utils/util';
@@ -79,6 +81,7 @@ const Filter = React.forwardRef(
     const [itemStyle, setItemStyle] = React.useState({});
     const colNum = React.useRef<number>(4);
     const [params, setParams] = React.useState<Record<string, any>>({});
+    const [isShowMore, setIsShowMore] = React.useState<boolean>(false);
 
     useImperativeHandle(ref, (): FilterComponent => {
       return {
@@ -136,10 +139,10 @@ const Filter = React.forwardRef(
           clearTimeout(timer);
           timer = null;
         }
-        // timer = setTimeout(doResize, 30);
         doResize();
       });
       myObserver.observe(filterRef.current as Element);
+      doResize();
       return () => {
         myObserver.disconnect();
       };
@@ -150,12 +153,16 @@ const Filter = React.forwardRef(
         setTimeout(() => doResize, 1000);
         return;
       }
+
       const w = filterRef.current.clientWidth;
-      const col = Math.floor(w / itemMinWidth);
+      let col = Math.floor(w / itemMinWidth);
+      if (w < itemMinWidth) {
+        col = 1;
+      }
       colNum.current = col;
       setItemStyle(sty => ({
         ...sty,
-        flex: `0 0 ${(w - 40 - (col - 1) * 20) / col}px`,
+        flex: `0 0 ${(w - (col - 1) * 20) / col}px`,
       }));
     };
 
@@ -310,8 +317,8 @@ const Filter = React.forwardRef(
     });
 
     return (
-      <div className="filter-component" ref={filterRef}>
-        <div className="filter-form">
+      <div className="filter-component">
+        <div className="filter-form" ref={filterRef}>
           {innerItems.map((item: InnerFilterItem, idx: number) => {
             let Item, Comp;
             if (item.render) {
@@ -320,6 +327,7 @@ const Filter = React.forwardRef(
             if (item.component) {
               Comp = componentMap[item.component];
             }
+            if (2 * colNum.current <= idx && !isShowMore) return null;
             return (
               <div
                 key={item.key}
@@ -403,6 +411,18 @@ const Filter = React.forwardRef(
           )}
           {props.ctrls}
         </div>
+        {2 * colNum.current < innerItems.length && (
+          <div
+            className="filter-more-box"
+            onClick={() => setIsShowMore(isShow => !isShow)}
+          >
+            <DoubleRightOutlined
+              className={classNames('filter-more', {
+                'filter-more-close': isShowMore,
+              })}
+            />
+          </div>
+        )}
       </div>
     );
   },
