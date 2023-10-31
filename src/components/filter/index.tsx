@@ -159,6 +159,7 @@ const Filter = React.forwardRef(
       if (w < itemMinWidth) {
         col = 1;
       }
+      console.log(123123, col, w, itemMinWidth);
       colNum.current = col;
       setItemStyle(sty => ({
         ...sty,
